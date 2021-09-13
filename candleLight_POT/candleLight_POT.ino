@@ -26,7 +26,7 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //compose();
+  compose();
   delay(10);
   analogWrite(ledPin, brightness);
   currentMillis = millis(); //store the current time since the program started
@@ -36,6 +36,10 @@ void loop() {
   Serial.print(" ");
   Serial.print(target);
   Serial.println(' ');
+  
+  Serial.println("###################");
+  Serial.print(currentMillis - startMillis);
+  Serial.println("###################");
   
 
 
@@ -53,24 +57,33 @@ void loop() {
         }
         */
     
-        if (sensor == target) {
+        if (sensor > (target - 5) && sensor < (target + 5)) {
           Serial.println("hit");
-          generateNumber();
-          } else if ((target - sensor) >= 200 && (target - sensor) <= 300) {
-            Serial.println("closer");
-            } else if (target - sensor >= 500) {
-              Serial.println("close");
-              } else {
+          changeState(INCREASE);
+          if (currentMillis - startMillis >= 10000){
+            generateNumber();
+          }
+          } else if ((target - sensor) >= 1 && (target - sensor) <= 300) {
+            Serial.println("close");
+            changeState(STEADIER3);
+            } else if ((target - sensor) > 300 && (target - sensor) <= 500) {
+              Serial.println("closer");
+              changeState(STEADIER2);
+              } else if ((target - sensor) > 500 && (target - sensor) <= 600) {
                 Serial.println("not close");
+                changeState(STEADIER1);
+              } else {
+                Serial.println("not close at all");
+                changeState(RANDOM);
               }
    
            if (sensor == target) {
           Serial.println("hit");
-          generateNumber();  
+         
          } else if ( (target - sensor) < 0) {
-          Serial.println("below");
+          Serial.println("above");
          } else if ((target - sensor) > 0) {
-          Serial.println("above"); 
+          Serial.println("below"); 
          }
    
 }
@@ -163,10 +176,10 @@ void compose() {
 
     plot("INCREASING", brightness);
         
-    if (brightness > 250){
+   /* if (brightness > 250){
       //ledState = WAVE;
       changeState(WAVE);
-      }
+      }*/
     break;
    
   case DECREASE:
